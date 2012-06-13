@@ -4,21 +4,22 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import org.apache.commons.lang3.StringUtils;
 
 public class TableWriter extends PrintWriter{
     
     // The default behavior for the table is 10 16-char string columns
-    String[] fmtStrings = new String[]{
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
-        "%16s",
+    int[] columnWidth = new int[]{
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
     };
     
     private int columnCounter = 0;
@@ -29,15 +30,15 @@ public class TableWriter extends PrintWriter{
     
     public void setColumnCount(int c)
     {
-        String[] newFmt = new String[c];
-        System.arraycopy(fmtStrings, 0, newFmt, 0, 
-                Math.min(c,fmtStrings.length));
-        fmtStrings = newFmt;
+        int[] newWidths = new int[c];
+        System.arraycopy(columnWidth, 0, newWidths, 0, 
+                Math.min(c,columnWidth.length));
+        columnWidth = newWidths;
     }
     
-    public void setFormatForColumn(int index, String fmt)
+    public void setWidthForColumn(int index, int width)
     {
-        fmtStrings[index] = fmt;
+        columnWidth[index] = width;
     }
     
     public void setColumnDelimiter(String delim)
@@ -47,8 +48,11 @@ public class TableWriter extends PrintWriter{
     
     public void printColumn(String s)
     {
-        String fmt = fmtStrings[columnCounter++] + columnDelim;
-        this.format(fmt, s);
+        if(s.length() > columnWidth[columnCounter])
+            s = s.substring(0, columnWidth[columnCounter]);
+        
+        String cell = StringUtils.leftPad(s, columnWidth[columnCounter]);
+        this.print(cell + columnDelim);
     }
     
     public void endRow()
